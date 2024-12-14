@@ -3,32 +3,26 @@ pipeline {
     stages {
         stage('pull'){
             steps {
-                echo 'PULL SUCCESS'
+                git branch: 'dev', url: 'https://github.com/shubhamkalsait/cbz-backend-1.git'
             }
         }
         stage('build'){
             steps {
-                echo "Build Success"
-            }
-        }
-        stage('test'){
-            steps {
-                echo "test success"
+                sh ''' cp -vf application.properties src/main/resources/application.properties
+                    /opt/maven/bin/mvn clean package'''
             }
         }
         stage('docker-build'){
             steps {
-                echo "docker image build"
-            }
-        }
-        stage('docker-push'){
-            steps {
-                echo "push docker image"
+                sh '''docker build . -t shubhamkalsait1/cbz-backend-1:latest
+                    echo "Redhat@123" | docker login --username shubhamkalsait1 --password-stdin
+                    docker push shubhamkalsait1/cbz-backend-1:latest
+                    docker rmi shubhamkalsait1/cbz-backend-1:latest'''
             }
         }
         stage('deploy'){
             steps {
-                echo "kubectl apply"
+                sh '''kubectl apply -f ./yaml/'''
             }
         }
     }
